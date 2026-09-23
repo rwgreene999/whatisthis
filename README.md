@@ -1,6 +1,8 @@
 # whatisthis
 Discover what a linux file or desktop link is from GUI file manager before clicking on it
 
+## as in what is this file:  whatisthis filename 
+
 ## Why 
 I found an item on my linux Mint desktop called "Access Archive".  I wanted to know what it was, without clicking on it to see what would happen if I clicked it. 
 
