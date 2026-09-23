@@ -1,0 +1,149 @@
+#!/bin/bash
+
+f="$1"
+
+echo
+echo "=============================="
+echo "       WHAT IS THIS?   (v1)"
+echo "=============================="
+echo
+
+if [ -z "$f" ]; then
+    echo "ERROR: No file supplied."
+    exit 1
+fi
+
+# Allow investigation of broken symlinks
+if [ ! -e "$f" ] && [ ! -L "$f" ]; then
+    echo "ERROR: Does not exist:"
+    echo "$f"
+    exit 1
+fi
+
+echo "FILE:"
+echo "$f"
+echo
+
+# Folder
+if [ -d "$f" ]; then
+    echo "ACTION:"
+    echo "Open Folder"
+    echo
+    exit 0
+fi
+
+# Symlink
+if [ -L "$f" ]; then
+    target=$(readlink -f "$f" 2>/dev/null)
+
+    echo "ACTION:"
+    echo "Follow Symbolic Link"
+    echo
+
+    echo "TARGET:"
+    echo "${target:-BROKEN LINK}"
+    echo
+
+    if [ -n "$target" ] && [ -x "$target" ] && [ ! -d "$target" ]; then
+        echo "WARNING:"
+        echo "Target is executable"
+        echo
+    fi
+
+    exit 0
+fi
+
+# Desktop launcher/link
+if [[ "$f" == *.desktop ]]; then
+
+    name=$(grep '^Name=' "$f" 2>/dev/null | cut -d= -f2-)
+    type=$(grep '^Type=' "$f" 2>/dev/null | cut -d= -f2-)
+
+    if [ -n "$name" ]; then
+        echo "LAUNCHER NAME:"
+        echo "$name"
+        echo
+    fi
+
+    case "$type" in
+
+        Link)
+            url=$(grep '^URL=' "$f" 2>/dev/null | cut -d= -f2-)
+
+            echo "ACTION:"
+            echo "Open URL"
+            echo
+
+            echo "TARGET:"
+            echo "$url"
+            echo
+
+            echo "RISK:"
+            echo "Network access (opens browser)"
+            echo
+            exit 0
+            ;;
+
+        Application)
+            cmd=$(grep '^Exec=' "$f" 2>/dev/null | cut -d= -f2-)
+
+            echo "ACTION:"
+            echo "Run Program"
+            echo
+
+            echo "COMMAND:"
+            echo "$cmd"
+            echo
+
+            echo "RISK:"
+            echo "WARNING: Executes command"
+            echo
+            exit 0
+            ;;
+
+        Directory)
+            echo "ACTION:"
+            echo "Open Directory"
+            echo
+            exit 0
+            ;;
+    esac
+fi
+
+mime=$(xdg-mime query filetype "$f" 2>/dev/null)
+
+echo "ACTION:"
+echo "Open File"
+echo
+
+echo "TYPE:"
+echo "${mime:-unknown}"
+echo
+
+default_app=$(xdg-mime query default "$mime" 2>/dev/null)
+
+if [ -n "$default_app" ]; then
+    echo "DEFAULT APPLICATION:"
+    echo "$default_app"
+    echo
+fi
+
+if [ -x "$f" ] && [ ! -d "$f" ]; then
+    echo "WARNING:"
+    echo "File is executable"
+    echo
+fi
+
+if file "$f" | grep -qiE 'shell script|bash script|python script|perl script'; then
+    echo "WARNING:"
+    echo "This appears to be a script"
+    echo
+fi
+
+echo "REAL FILE TYPE:"
+file -b "$f"
+echo
+
+echo "SIZE:"
+du -h "$f" 2>/dev/null | cut -f1
+echo
