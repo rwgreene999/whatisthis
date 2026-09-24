@@ -24,13 +24,15 @@ Copilot and I developed this script to explore a file before clicking it.  As a 
 ## Instructions for adding to context menu for nemo gui 
 * create (nano, vim, ...): ~/.local/share/nemo/actions/whatisthis.nemo_action
 * enter:
+
 [Nemo Action]
 Active=true
 Name=What is this?
 Comment=Show what this launcher actually does
 Exec=gnome-terminal -- bash -c 'whatisthis "%F"; read'
 Selection=Any
-Extensions=desktop;
+Extensions=any;
+
 * save 
 * restart nemo from cli: nemo -q 
   
