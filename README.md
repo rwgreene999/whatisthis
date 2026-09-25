@@ -10,9 +10,16 @@ It turns out there are a lot of commands involved in discovering about a file be
 
 ## Solution 
 
-Copilot and I developed this script to explore a file before clicking it.  As a CLI, you can enter whatisthis and the filename.  Also added the ability to for right context menu. 
+Copilot and I developed this script to explore a file before clicking it.
+Show: If the file is a URL and to where, an executable file (with warning), resolve Symlinks, ...  
 
-## adding to nemu's GUI 
+As a CLI, you can enter "whatisthis filename".  
+From GUI add ability to for right click context menu. 
+
+
+
+Gemini and I resolved the escaped space issue on some versions of nemo 
+
 
 ## roadmap, things I might add if needed or discovered or other distros 
 * support for other graphical file managers than just nemo
@@ -27,12 +34,17 @@ Copilot and I developed this script to explore a file before clicking it.  As a 
 
 [Nemo Action]
 Active=true
-Name=What is this?
-Comment=Show what this launcher actually does
-Exec=gnome-terminal -- bash -c 'whatisthis "%F"; read'
-Selection=Any
+Name=What Is This
+Comment=Runs whatisthis command on selected file
+Exec=gnome-terminal -- bash -c 'whatisthis "$1"; read' dummy %F
+Quote=double
+Selection=any
 Extensions=any;
 
 * save 
 * restart nemo from cli: nemo -q 
-  
+
+## version history 
+* v1 = initial working code 
+* v1.1 = fixed "Nemo Action", on some systems Nemo passed filenames with spaces as escaped characters which confused whatisthis. Solution: tell nemo don't do that. 
+
